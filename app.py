@@ -23,12 +23,6 @@ images = [
 def index():
     url = random.choice(images)
     return render_template('index.html', url=url)
-
-# Introduce code duplication: Duplicate the 'index' function
-@app.route('/duplicate')
-def duplicate_index():
-    url = random.choice(images)
-    return render_template('index.html', url=url)
     
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
