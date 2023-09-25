@@ -19,15 +19,16 @@ images = [
     "http://ak-hdl.buzzfed.com/static/2013-10/enhanced/webdr03/15/10/anigif_enhanced-buzz-11980-1381846269-1.gif"
 ]
 
-# Duplicated function
-def duplicate_index():
-    url = random.choice(images)
-    return render_template('index.html', url=url)
-    
 @app.route('/')
 def index():
     url = random.choice(images)
     return render_template('index.html', url=url)
 
+# Introduce code duplication: Duplicate the 'index' function
+@app.route('/duplicate')
+def duplicate_index():
+    url = random.choice(images)
+    return render_template('index.html', url=url)
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
