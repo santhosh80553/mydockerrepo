@@ -15,6 +15,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Cache SonarCloud analysis
+        uses: actions/cache@v2
+        with:
+          path: ~/.sonar/cache
+          key: sonarcloud-${{ runner.os }}-${{ hashFiles('**/sonar-project.properties') }}
+          restore-keys: |
+            sonarcloud-${{ runner.os }}-
+            sonarcloud-
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
@@ -26,5 +35,13 @@ jobs:
             -Dsonar.projectKey=mydockerrepo
         # ... (other SonarCloud arguments)
 
-env:
-  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Extract SonarCloud analysis data
+        id: sonarcloud-data
+        run: |
+          echo "SonarCloud Analysis ID: ${{ steps.DemoSonarCloudScan.outputs.sonar_analysis_id }}"
+          echo "SonarCloud Quality Gate Status: ${{ steps.DemoSonarCloudScan.outputs.sonar_quality_gate_status }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+  env:
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
