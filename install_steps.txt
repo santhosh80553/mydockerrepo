@@ -52,3 +52,5 @@ sudo docker run --name static-site -e AUTHOR="Your Name" -d -P dockersamples/sta
 sudo docker port static-site
 sudo curl http://localhost:32768
 sudo docker run --name static-site-2 -e AUTHOR="Ananth Kannan" -d -p 8080:80 dockersamples/static-site
+
+Flask==0.10.1
