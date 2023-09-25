@@ -1,23 +1,34 @@
 name: SonarCloud
+
 on:
   push:
     branches:
       - master
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
-  DemoSonarCloudSCan:
+  DemoSonarCloudScan:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-        with:
-            fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Copy sonar-project.properties
+        run: |
+          cp sonar-project.properties $GITHUB_WORKSPACE/sonar-project.properties
+        working-directory: ${{ github.workspace }}
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
-            GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-              -Dsonar.organization=santhosh80553
-              -Dsonar.projectKey=mydockerrepo
+            -Dsonar.organization=santhosh80553
+        # ... (other SonarCloud arguments)
+
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
