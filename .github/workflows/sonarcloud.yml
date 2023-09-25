@@ -1,4 +1,5 @@
 name: SonarCloud
+
 on:
   push:
     branches:
@@ -7,18 +8,58 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  DemoSonarCloudSCan:
+  DemoSonarCloudScan:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache SonarCloud scanner dependencies
+        uses: actions/cache@v2
         with:
-            fetch-depth: 0
+          path: ~/.sonar/cache
+          key: sonar-cache-${{ runner.os }}-${{ hashFiles('**/sonar-project.properties') }}
+          restore-keys: |
+            sonar-cache-${{ runner.os }}-
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
-            GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-              -Dsonar.organization=santhosh80553
-              -Dsonar.projectKey=mydockerrepo
+            -Dsonar.organization=santhosh80553
+            -Dsonar.projectKey=mydockerrepo
+
+      - name: Check SonarCloud Quality Gate
+        id: sonar_quality_gate
+        run: |
+          status=$(curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=mydockerrepo" -H "Authorization: Basic $SONAR_TOKEN" | jq -r '.projectStatus.status')
+          echo "SonarCloud Quality Gate Status: $status"
+          echo "::set-output name=status::$status"
+
+      - name: Calculate Percentage of Code Success
+        id: code_success
+        run: |
+          if [ "$status" == "OK" ]; then
+            echo "100"
+          else
+            percentage=$(curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=mydockerrepo" -H "Authorization: Basic $SONAR_TOKEN" | jq -r '.projectStatus.conditions[] | select(.metricKey == "coverage") | .status')
+            if [ "$percentage" == "OK" ]; then
+              echo "100"
+            else
+              percentage_value=$(curl -s "https://sonarcloud.io/api/measures/component?component=mydockerrepo&metricKeys=coverage" -H "Authorization: Basic $SONAR_TOKEN" | jq -r '.component.measures[0].value')
+              percentage_rounded=$(printf "%.2f" "$percentage_value")
+              percentage_int=$(awk "BEGIN {printf \"%.0f\n\", $percentage_rounded*100}")
+              echo "$percentage_int"
+            fi
+          fi
+        shell: bash
+
+      - name: Set Output Percentage
+        run: echo "code_success_percentage=${{ steps.code_success.outputs.code_success }}" >> $GITHUB_ENV
+
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
