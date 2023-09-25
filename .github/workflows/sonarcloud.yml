@@ -15,11 +15,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Copy sonar-project.properties
-        run: |
-          cp sonar-project.properties $GITHUB_WORKSPACE/sonar-project.properties
-        working-directory: ${{ github.workspace }}
-
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
@@ -28,6 +23,7 @@ jobs:
         with:
           args: >
             -Dsonar.organization=santhosh80553
+            -Dsonar.projectKey=mydockerrepo
         # ... (other SonarCloud arguments)
 
 env:
