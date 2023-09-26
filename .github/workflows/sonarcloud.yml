@@ -1,47 +1,23 @@
 name: SonarCloud
-
 on:
   push:
     branches:
       - master
   pull_request:
     types: [opened, synchronize, reopened]
-
 jobs:
-  DemoSonarCloudScan:
+  DemoSonarCloudSCan:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Cache SonarCloud scanner
-        uses: actions/cache@v2
+      - uses: actions/checkout@v3
         with:
-          path: ~/.sonar/cache
-          key: sonar-cache-${{ runner.os }}-${{ hashFiles('**/*.xml') }}
-          restore-keys: |
-            sonar-cache-${{ runner.os }}-
-
+            fetch-depth: 0
       - name: SonarCloud Scan
-        id: sonar_scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=santhosh80553
-            -Dsonar.projectKey=mydockerrepo
-        # ... (other SonarCloud arguments)
-
-      - name: Get SonarCloud Quality Gate Status
-        run: |
-          curl -u ${{ secrets.SONAR_TOKEN }}: -X GET "https://sonarcloud.io/api/qualitygates/project_status?projectKey=mydockerrepo" -o qualitygate.json
-          jq -r .projectStatus.status qualitygate.json
-        shell: bash
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-env:
-  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+              -Dsonar.organization=santhosh80553
+              -Dsonar.projectKey=mydockerrepo
