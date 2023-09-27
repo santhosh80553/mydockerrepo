@@ -38,7 +38,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    with:
+      with:
           args: >
               -Dsonar.organization=santhosh80553
               -Dsonar.projectKey=mydockerrepo
