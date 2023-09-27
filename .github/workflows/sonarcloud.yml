@@ -1,47 +1,30 @@
-name: SonarCloud
+name: SonarCloud Scan
 
 on:
   push:
     branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened]
+      - main
 
 jobs:
-  DemoSonarCloudScan:
+  sonarcloud:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x] # Explicitly specify node16
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
-          fetch-depth: 100
+          fetch-depth: 0  # You can configure fetch-depth as needed
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v3
+      - name: Cache SonarCloud analysis results
+        uses: actions/cache@v2
         with:
-          python-version: 3.9
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pylint pytest pytest-cov selenium playwright
-
-      - name: Running pytest
-        run: |
-          pytest -v  --cov --cov-report=xml --cov-report=html
-
-      - name: Analysing the code with pylint
-        continue-on-error: true
-        run: |
-          pylint src/git_graph_automation
+          path: ${{ runner.workspace }}/sonarcloud_cache
+          key: sonarcloud-analysis-${{ runner.os }}
+          restore-keys: |
+            sonarcloud-analysis-
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: sonarsource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
