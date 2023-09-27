@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x] # Explicitly specify node16
+        node-version: [12.x] # Explicitly specify node16
 
     steps:
       - name: Checkout code
