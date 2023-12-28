@@ -20,4 +20,4 @@ jobs:
         with:
           args: >
             -Dsonar.organization=santhosh80553
-            -Dsonar.projectKey=santhosh80553_mydockerrepo
+            -Dsonar.projectKey=santhosh80553_mydockerrepo  
