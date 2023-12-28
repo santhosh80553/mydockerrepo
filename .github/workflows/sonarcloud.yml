@@ -21,4 +21,3 @@ jobs:
           args: >
             -Dsonar.organization=santhosh80553
             -Dsonar.projectKey=mydockerrepo
-            -Dsonar.branch.name=master  # Specify your branch name here
